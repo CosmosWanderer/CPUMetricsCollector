@@ -1,4 +1,4 @@
 # CPUMetricsCollector
 
-gcc -DSPEC_CPU -DSPEC_CPU_LINUX *.c -o Test -lm
-sudo taskset -c 0-3 ./Test 513
+gcc -DSPEC_CPU -DSPEC_CPU_LINUX *.c -o Test -lm<br>
+sudo ./Test 513
