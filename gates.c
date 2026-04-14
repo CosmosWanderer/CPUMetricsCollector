@@ -90,7 +90,7 @@ quantum_toffoli(int control1, int control2, int target, quantum_reg *reg)
     {
     if(quantum_objcode_put(TOFFOLI, control1, control2, target)) {
   perf_stop(&ctx);
-  perf_write(&ctx);
+perf_store(&ctx);
 	return;
     }
       for(i=0; i<reg->size; i++)
@@ -110,7 +110,7 @@ quantum_toffoli(int control1, int control2, int target, quantum_reg *reg)
     }
 
   perf_stop(&ctx);
-  perf_write(&ctx);
+perf_store(&ctx);
 }
 
 /* Apply an unbounded toffoli gate. This gate is not considered

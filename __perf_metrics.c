@@ -10,6 +10,9 @@
 #include <sys/syscall.h>
 
 static FILE* perf_file = NULL;
+static perf_sample_t perf_buffer[PERF_MAX_SAMPLES];
+static int perf_count = 0;
+
 
 /*
 perf_event_open
@@ -160,7 +163,8 @@ void perf_stop(perf_ctx* ctx)
     }
 }
 
-// Запись данных в файл
+// Запись данных в файл (deprecated)
+/*
 void perf_write(perf_ctx* ctx)
 {
     long long time_ns = (ctx->end.tv_sec - ctx->start.tv_sec) * 1000000000LL + (ctx->end.tv_nsec - ctx->start.tv_nsec);
@@ -186,4 +190,63 @@ void perf_write(perf_ctx* ctx)
         ctx->values[6], // LLC access
         ctx->values[7]  // LLC miss
     );
+}
+*/
+void perf_store(perf_ctx* ctx)
+{
+    if(perf_count >= PERF_MAX_SAMPLES)
+        return;
+
+    long long time_ns =
+        (ctx->end.tv_sec - ctx->start.tv_sec) * 1000000000LL +
+        (ctx->end.tv_nsec - ctx->start.tv_nsec);
+
+    perf_sample_t* s = &perf_buffer[perf_count++];
+
+    s->time_ns      = time_ns;
+    s->cycles       = ctx->values[0];
+    s->instructions = ctx->values[1];
+    s->branch_instr = ctx->values[2];
+    s->branch_misses= ctx->values[3];
+    s->l1_access    = ctx->values[4];
+    s->l1_miss      = ctx->values[5];
+    s->llc_access   = ctx->values[6];
+    s->llc_miss     = ctx->values[7];
+}
+
+void perf_dump_to_file(const char* filename)
+{
+    FILE* f = fopen(filename, "w");
+
+    fprintf(f,
+        "time_ns,"
+        "cycles,"
+        "instructions,"
+        "branch_instr,"
+        "branch_misses,"
+        "l1_access,"
+        "l1_miss,"
+        "llc_access,"
+        "llc_miss\n"
+    );
+
+    for(int i = 0; i < perf_count; i++)
+    {
+        perf_sample_t* s = &perf_buffer[i];
+
+        fprintf(f,
+            "%lld,%lld,%lld,%lld,%lld,%lld,%lld,%lld,%lld\n",
+            s->time_ns,
+            s->cycles,
+            s->instructions,
+            s->branch_instr,
+            s->branch_misses,
+            s->l1_access,
+            s->l1_miss,
+            s->llc_access,
+            s->llc_miss
+        );
+    }
+
+    fclose(f);
 }

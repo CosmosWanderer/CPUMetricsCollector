@@ -3,6 +3,21 @@
 #include <time.h>
 
 #define PERF_EVENT_COUNT 9 // Сколько собираем метрик
+#define PERF_MAX_SAMPLES 50000 // Сколько записей делаем
+
+typedef struct 
+{
+    long long time_ns;
+
+    long long cycles;
+    long long instructions;
+    long long branch_instr;
+    long long branch_misses;
+    long long l1_access;
+    long long l1_miss;
+    long long llc_access;
+    long long llc_miss;
+} perf_sample_t;
 
 /*
 Если нужно, минимальный пример использования 
@@ -75,4 +90,11 @@ void perf_start(perf_ctx* ctx);
 void perf_stop(perf_ctx* ctx);
 
 // Запись в файл (используются values[], start, end)
+/*
 void perf_write(perf_ctx* ctx);
+*/
+
+void perf_store(perf_ctx* ctx);
+
+void perf_dump_to_file(const char* filename);
+

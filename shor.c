@@ -181,5 +181,6 @@ int main(int argc, char **argv) {
 
   /*  printf("Memory leak: %i bytes\n", (int) quantum_memman(0)); */
 
+  perf_dump_to_file("metrics.csv");
   return 0;
 }
